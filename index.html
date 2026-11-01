@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Metabolomics Sample Submission – BCF Technion</title>
+<style>
+:root{--bg:#f5f6f8;--card:#fff;--ink:#1d2433;--muted:#5d6678;--line:#d9dde5;--accent:#0b5c8c;--accent-bg:#e8f2f9;--warn-bg:#fff6e0;--warn:#7a5200;--err:#b42318;--ok:#18794e;--radius:10px}
+@media (prefers-color-scheme:dark){:root{--bg:#14171c;--card:#1d2127;--ink:#e7e9ee;--muted:#a3abba;--line:#343a45;--accent:#5fb0e4;--accent-bg:#1b2c3a;--warn-bg:#3a2f14;--warn:#f1c76a;--err:#ff8a80;--ok:#6fd3a0}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:24px 16px 64px}
+header h1{margin:0 0 4px;font-size:26px;font-weight:600}
+header p{margin:0;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;margin-top:18px}
+.card h2{margin:0 0 4px;font-size:19px;font-weight:600;display:flex;gap:10px;align-items:center}
+.card h2 .n{display:inline-flex;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;font-size:14px;align-items:center;justify-content:center;flex:none}
+.card > .sub{color:var(--muted);margin:0 0 12px;font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px 18px}
+.f{display:flex;flex-direction:column;gap:4px;min-width:0}
+.f.full{grid-column:1/-1}
+label.l{font-weight:500;font-size:14px}
+.req::after{content:" *";color:var(--err)}
+.hint{color:var(--muted);font-size:13px}
+input[type=text],input[type=email],input[type=tel],input[type=date],input[type=number],select,textarea{font:inherit;color:inherit;background:var(--card);border:1px solid var(--line);border-radius:7px;padding:8px 10px;width:100%}
+textarea{min-height:76px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:var(--accent)}
+.opts{display:flex;flex-wrap:wrap;gap:6px 16px}
+.opts label{display:flex;gap:6px;align-items:center;font-size:14px;cursor:pointer}
+.box{background:var(--accent-bg);border-radius:8px;padding:12px 14px;font-size:16px;line-height:1.5}
+.box.warn{background:var(--warn-bg);color:var(--warn);font-size:14px}
+.hidden{display:none!important}
+.f.bad input,.f.bad select,.f.bad textarea{border-color:var(--err)}
+#confirm_wrap.bad{color:var(--err)}
+.f.bad .opts{outline:1px solid var(--err);outline-offset:4px;border-radius:4px}
+.errmsg{color:var(--err);font-size:13px}
+.btn{font:inherit;font-weight:500;border:1px solid var(--accent);background:var(--card);color:var(--accent);border-radius:7px;padding:8px 14px;cursor:pointer}
+.btn.primary{background:var(--accent);color:#fff}
+.btn:hover{filter:brightness(.95)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px;margin-top:10px}
+table.samples{border-collapse:collapse;width:100%;min-width:860px;font-size:14px}
+table.samples th{background:var(--accent-bg);text-align:left;font-weight:600;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+table.samples td{border-bottom:1px solid var(--line);padding:0}
+table.samples td.idx{color:var(--muted);text-align:center;width:36px;font-size:12px}
+table.samples td input,table.samples td select{border:0;border-radius:0;padding:6px 8px;background:transparent;min-width:90px}
+table.samples td.del{width:32px;text-align:center}
+table.samples td.del button{border:0;background:none;color:var(--muted);cursor:pointer;font-size:16px}
+table.samples tr.bad td{background:rgba(180,35,24,.08)}
+#summary{margin-top:10px}
+table.samples.nonorm [data-col=norm_value]{display:none}
+#summary ul{margin:6px 0 0;padding-left:20px}
+footer{color:var(--muted);font-size:13px;text-align:center;margin-top:28px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Metabolomics Sample Submission</h1>
+  <p>Biomedical Core Facility (BCF), Technion · Fill this in, download the Excel file and email it to us.</p>
+  <div class="box warn" style="margin-top:12px">Nothing is sent from this page. Your details stay in your browser until you attach the downloaded file to an email.</div>
+</header>
+
+<form id="form" novalidate autocomplete="on">
+
+<!-- 1 -->
+<section class="card">
+  <h2><span class="n">1</span>Your details</h2>
+  <div class="grid">
+    <div class="f"><label class="l req" for="full_name">Full name</label><input type="text" id="full_name" data-req></div>
+    <div class="f"><label class="l req" for="email">Email</label><input type="email" id="email" data-req data-type="email"></div>
+    <div class="f"><label class="l" for="mobile">Mobile phone</label><input type="tel" id="mobile"><span class="hint">Optional – helps us reach you quickly with urgent questions about your samples</span></div>
+    <div class="f"><label class="l req" for="role">Role</label>
+      <select id="role" data-req><option value="">Select…</option><option>MSc student</option><option>PhD student</option><option>Postdoc</option><option>Staff scientist / lab manager</option><option>PI</option><option>Other</option></select></div>
+    <div class="f hidden" data-show="role=Other"><label class="l req" for="role_other">Role (other)</label><input type="text" id="role_other" data-req></div>
+    <div class="f"><label class="l req" for="pi_name">PI name</label><input type="text" id="pi_name" data-req></div>
+    <div class="f"><label class="l req" for="pi_email">PI email</label><input type="email" id="pi_email" data-req data-type="email"></div>
+  </div>
+</section>
+
+<!-- 2 -->
+<section class="card">
+  <h2><span class="n">2</span>Institution and billing</h2>
+  <div class="grid">
+    <div class="f full"><span class="l req">Institution type</span>
+      <div class="opts" id="institution_type" data-req data-radio>
+        <label><input type="radio" name="institution_type" value="Academia">Academia</label>
+        <label><input type="radio" name="institution_type" value="Medical center / hospital">Medical center / hospital</label>
+        <label><input type="radio" name="institution_type" value="Industry">Industry</label>
+        <label><input type="radio" name="institution_type" value="Other">Other</label>
+      </div></div>
+    <div class="f hidden" data-show="institution_type=Academia"><label class="l req" for="academic_institution">Academic institution</label><select id="academic_institution" data-req></select></div>
+    <div class="f hidden" data-show="institution_type=Medical center / hospital"><label class="l req" for="medical_center">Medical center</label><select id="medical_center" data-req></select></div>
+    <div class="f hidden" data-show="institution_type=Industry"><label class="l req" for="company_name">Company name</label><input type="text" id="company_name" data-req></div>
+    <div class="f hidden" data-show="@other_institution"><label class="l req" for="institution_name">Institution name</label><input type="text" id="institution_name" data-req></div>
+    <div class="f hidden" data-show="@department"><label class="l req" for="department">Department / unit</label><input type="text" id="department" data-req></div>
+    <div class="f hidden" data-show="@technion"><label class="l req" for="faculty">Faculty</label><select id="faculty" data-req></select></div>
+    <div class="f hidden" data-show="@technion"><label class="l req" for="billing_budget">Budget number for billing</label><input type="text" id="billing_budget" data-req><span class="hint">The budget number to be charged for the analysis</span></div>
+    <div class="f full hidden" data-show="@technion"><div class="box"><b>RTICC subsidy.</b> Technion researchers are eligible for a subsidy of up to 25% from RTICC – Rappaport Technion Integrated Cancer Center, subject to the remaining subsidy balance. The subsidy will be refunded later to the reimbursement budget below.</div></div>
+    <div class="f hidden" data-show="@technion"><label class="l req" for="reimbursement_budget">Reimbursement budget number</label><input type="text" id="reimbursement_budget" data-req><span class="hint">Reimbursement budget number in company 2070 (budget number starting with 712)</span></div>
+  </div>
+</section>
+
+<!-- 3 -->
+<section class="card">
+  <h2><span class="n">3</span>Experiment</h2>
+  <div class="grid">
+    <div class="f full"><label class="l req" for="experiment_title">Experiment title</label><input type="text" id="experiment_title" data-req placeholder="Short name, e.g. Liver metabolism in KO mice"></div>
+    <div class="f full"><label class="l req" for="purpose_hypothesis">Purpose / hypothesis</label><textarea id="purpose_hypothesis" data-req></textarea></div>
+    <div class="f"><label class="l req" for="species">Species</label>
+      <select id="species" data-req></select></div>
+    <div class="f hidden" data-show="species=Other"><label class="l req" for="species_other">Species (other)</label><input type="text" id="species_other" data-req></div>
+    <div class="f hidden" data-show="species=Cell line"><label class="l req" for="strain_or_cell_line">Cell line name</label><input type="text" id="strain_or_cell_line" data-req placeholder="e.g. HeLa, HEK293, MCF-7"></div>
+    <div class="f full"><span class="l req">Sample type</span>
+      <div class="opts" id="sample_type" data-req data-check>
+        <label><input type="checkbox" value="Plasma">Plasma</label><label><input type="checkbox" value="Serum">Serum</label><label><input type="checkbox" value="Whole blood">Whole blood</label><label><input type="checkbox" value="Urine">Urine</label><label><input type="checkbox" value="Feces">Feces</label><label><input type="checkbox" value="Tissue">Tissue</label><label><input type="checkbox" value="Cell pellet">Cell pellet</label><label><input type="checkbox" value="Culture medium / supernatant">Culture medium / supernatant</label><label><input type="checkbox" value="CSF">CSF</label><label><input type="checkbox" value="Other">Other</label>
+      </div></div>
+    <div class="f hidden" data-show="sample_type~Tissue"><label class="l req" for="tissue">Tissue</label><input type="text" id="tissue" data-req placeholder="e.g. liver, brain"></div>
+    <div class="f hidden" data-show="sample_type~Other"><label class="l req" for="sample_type_other">Sample type (other)</label><input type="text" id="sample_type_other" data-req></div>
+    <div class="f full"><label class="l req" for="comparisons">Groups / comparisons of interest</label><textarea id="comparisons" data-req placeholder="e.g. WT vs KO; treated vs control"></textarea><span class="hint">Use the same group names as in the Group column of the sample table</span></div>
+    <div class="f full"><label class="l" for="metabolites_of_interest">Metabolites / pathways of interest</label><textarea id="metabolites_of_interest" placeholder="Optional"></textarea></div>
+  </div>
+</section>
+
+<!-- 4 -->
+<section class="card">
+  <h2><span class="n">4</span>Sample handling</h2>
+  <div class="grid">
+    <div class="f"><label class="l req" for="normalization_measure">Biological normalization measure</label>
+      <select id="normalization_measure" data-req></select><span class="hint">If you choose a measure, a column for its value is added to the sample table</span></div>
+    <div class="f hidden" data-show="normalization_measure=Other"><label class="l req" for="normalization_other">Normalization measure (other)</label><input type="text" id="normalization_other" data-req placeholder="e.g. DNA content (ng)"></div>
+    <div class="f"><label class="l" for="storage_temperature">Storage temperature</label>
+      <select id="storage_temperature"><option value="">Select…</option><option>-80 °C</option><option>-20 °C</option><option>4 °C</option><option>Other</option></select></div>
+    <div class="f"><span class="l req">Already extracted?</span>
+      <div class="opts" id="already_extracted" data-req data-radio><label><input type="radio" name="already_extracted" value="No">No</label><label><input type="radio" name="already_extracted" value="Yes">Yes</label></div></div>
+    <div class="f hidden" data-show="already_extracted=Yes"><label class="l req" for="extraction_solvent">Extraction solvent</label><input type="text" id="extraction_solvent" data-req></div>
+    <div class="f full"><label class="l" for="comments">Comments</label><textarea id="comments" placeholder="Optional"></textarea></div>
+  </div>
+</section>
+
+<!-- 5 -->
+<section class="card">
+  <h2><span class="n">5</span>Samples</h2>
+  <p class="sub">One row per sample. Paste straight from Excel into any cell, or upload a filled table. <b>Sample ID</b> and <b>Group</b> are required.</p>
+  <div class="row">
+    <label class="l" for="nsamples">Number of samples</label>
+    <input type="number" id="nsamples" min="1" max="2000" style="width:110px">
+    <button type="button" class="btn" id="setrows">Set rows</button>
+    <button type="button" class="btn" id="addrow">+ Add row</button>
+    <button type="button" class="btn" id="dltemplate">Download blank table</button>
+    <label class="btn" for="upload" style="display:inline-block">Upload filled table<input type="file" id="upload" accept=".xlsx,.xls,.csv" class="hidden"></label>
+  </div>
+  <div class="row" style="margin-top:10px">
+    <label class="l" for="alldate">Same collection date for all samples?</label>
+    <input type="date" id="alldate" style="width:170px">
+    <button type="button" class="btn" id="applydate">Apply to all rows</button>
+  </div>
+  <div class="tablewrap"><table class="samples" id="samples"><thead></thead><tbody></tbody></table></div>
+  <p class="hint" id="rowcount"></p>
+</section>
+
+<!-- 6 -->
+<section class="card">
+  <h2><span class="n">6</span>Before you send</h2>
+  <label style="display:flex;flex-direction:row;gap:8px;align-items:flex-start;cursor:pointer" id="confirm_wrap"><input type="checkbox" id="confirm" style="margin-top:4px"><span>I confirm that the information in this form is correct and complete.</span></label>
+  <div class="row" style="margin-top:14px">
+    <button type="button" class="btn primary" id="export">Download (.xlsx)</button>
+    <button type="button" class="btn" id="reset">Clear form</button>
+  </div>
+  <div id="summary"></div>
+  <p class="hint" style="margin-top:10px">Email the downloaded file to <a id="mailto" href="#"></a>. Keep the file name as it is.</p>
+</section>
+</form>
+<footer>BCF Metabolomics · Technion – Israel Institute of Technology · form v<span id="ver"></span></footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+/* ===== Configuration (edit here) ===== */
+const FORM_VERSION = "1.1";
+const SUBMIT_EMAIL = "metabolomics@technion.ac.il";
+const ACADEMIC = ["Technion – Israel Institute of Technology","Ariel University","Bar-Ilan University","Ben Gurion University","Haifa University","MIGAL – Galilee Research Institute","Tel-Aviv University","Tel-Hai Academic College","The Hebrew University","Volcani Center","Weizmann Institute of Science"];
+const MEDICAL = ["Bnai Zion Medical Center","Emek Medical Center","Galilee Medical Center","Hadassah Medical Center","Meir Medical Center","Rambam Health Care Campus","Sheba Medical Care Center"];
+const FACULTIES = ["Aerospace Engineering","Architecture and Town Planning","Biology","Biomedical Engineering","Biotechnology and Food Engineering","Chemical Engineering","Chemistry","Civil and Environmental Engineering","Computer Science","Data and Decision Sciences","Education in Science and Technology","Electrical and Computer Engineering","Humanities and Arts","Materials Science and Engineering","Mathematics","Mechanical Engineering","Medicine","Physics","Other"];
+const SPECIES = ["Human","Mouse","Rat","Cell line","Zebrafish","Drosophila","C. elegans","Yeast","Bacteria","Plant","Pig","Non-human primate","Other"];
+const NORM = {"Cell count":"Cell count","Protein amount (µg)":"Protein (µg)","Tissue weight (mg)":"Tissue weight (mg)","Sample volume (µL)":"Volume (µL)","Other":"Normalization value","None":""};
+const NOT_LISTED = "Other – not listed";
+const TECHNION = ACADEMIC[0];
+const COLS = [
+  {key:"sample_id",label:"Sample ID",req:true},
+  {key:"group",label:"Group",req:true},
+  {key:"bio_replicate",label:"Biological replicate"},
+  {key:"sex",label:"Sex",opts:["","Male","Female","Mixed","Unknown","N/A"]},
+  {key:"age",label:"Age"},
+  {key:"genotype",label:"Genotype"},
+  {key:"treatment",label:"Treatment"},
+  {key:"time_point",label:"Time point"},
+  {key:"collection_date",label:"Collection date"},
+  {key:"norm_value",label:"Normalization value",dyn:true},
+  {key:"notes",label:"Notes"}
+];
+/* ===================================== */
+
+const $ = s => document.querySelector(s);
+const fill = (sel, list, extra) => { sel.innerHTML = '<option value="">Select…</option>' + list.concat(extra?[extra]:[]).map(v=>`<option>${v}</option>`).join(''); };
+fill($('#academic_institution'), ACADEMIC, NOT_LISTED);
+fill($('#medical_center'), MEDICAL, NOT_LISTED);
+fill($('#faculty'), FACULTIES);
+fill($('#species'), SPECIES);
+fill($('#normalization_measure'), Object.keys(NORM));
+$('#ver').textContent = FORM_VERSION;
+$('#mailto').textContent = SUBMIT_EMAIL; $('#mailto').href = 'mailto:' + SUBMIT_EMAIL + '?subject=Metabolomics%20sample%20submission';
+
+function val(id){
+  const el = document.getElementById(id);
+  if (!el) return '';
+  if (el.hasAttribute('data-radio')) { const c = el.querySelector('input:checked'); return c ? c.value : ''; }
+  if (el.hasAttribute('data-check')) return [...el.querySelectorAll('input:checked')].map(c=>c.value);
+  return el.value.trim();
+}
+function derived(name){
+  const t = val('institution_type'), a = val('academic_institution'), m = val('medical_center');
+  switch(name){
+    case 'technion': return t==='Academia' && a===TECHNION;
+    case 'other_institution': return t==='Other' || (t==='Academia' && a===NOT_LISTED) || (t==='Medical center / hospital' && m===NOT_LISTED);
+    case 'department': return (t==='Academia' && a && a!==TECHNION && a!==NOT_LISTED) || (t==='Medical center / hospital' && m && m!==NOT_LISTED);
+  }
+}
+function visible(cond){
+  if (cond.startsWith('@')) return derived(cond.slice(1));
+  if (cond.includes('~')) { const [k,v]=cond.split('~'); return val(k).includes(v); }
+  const [k,v]=cond.split('='); return val(k)===v;
+}
+function refresh(){
+  document.querySelectorAll('[data-show]').forEach(el => el.classList.toggle('hidden', !visible(el.dataset.show)));
+  if (typeof updateNormCol==='function') updateNormCol();
+  saveDraft();
+}
+
+/* ---- sample table ---- */
+const thead = $('#samples thead'), tbody = $('#samples tbody');
+thead.innerHTML = '<tr><th>#</th>' + COLS.map(c=>`<th data-col="${c.key}">${c.label}${c.req?' *':''}</th>`).join('') + '<th></th></tr>';
+function normLabel(){ const m=val('normalization_measure'); if(!m||m==='None') return ''; return m==='Other' ? (val('normalization_other')||'Normalization value') : NORM[m]; }
+function visCols(){ return COLS.map((c,i)=>i).filter(i=>!COLS[i].dyn || normLabel()); }
+function colLabel(c){ return c.dyn ? normLabel() : c.label; }
+function updateNormCol(){ const L=normLabel(); document.getElementById('samples').classList.toggle('nonorm', !L); const th=thead.querySelector('[data-col=norm_value]'); if(th) th.textContent = (L||'') + (L?' *':''); }
+function earliestDate(){ const d=getRows().map(r=>r.collection_date).filter(Boolean); if(!d.length) return ''; const t=d.map(x=>[Date.parse(x),x]).filter(x=>!isNaN(x[0])).sort((a,b)=>a[0]-b[0]); return t.length?t[0][1]:d[0]; }
+function cellHTML(c, v=''){
+  if (c.opts) return `<select data-k="${c.key}">${c.opts.map(o=>`<option${o===v?' selected':''}>${o}</option>`).join('')}</select>`;
+  return `<input type="text" data-k="${c.key}" value="${String(v).replace(/"/g,'&quot;')}">`;
+}
+function addRow(data={}){
+  const tr = document.createElement('tr');
+  tr.innerHTML = '<td class="idx"></td>' + COLS.map(c=>`<td data-col="${c.key}">${cellHTML(c, data[c.key]??'')}</td>`).join('') + '<td class="del"><button type="button" title="Delete row" aria-label="Delete row">×</button></td>';
+  tbody.appendChild(tr); renumber(); return tr;
+}
+function renumber(){ [...tbody.rows].forEach((r,i)=>r.cells[0].textContent=i+1); const n=getRows().length; $('#rowcount').textContent = `${tbody.rows.length} rows · ${n} filled`; }
+function setRows(n){ n=Math.max(1,Math.min(2000,n|0)); while(tbody.rows.length<n) addRow(); while(tbody.rows.length>n && isEmpty(tbody.rows[tbody.rows.length-1])) tbody.deleteRow(-1); renumber(); saveDraft(); }
+function isEmpty(tr){ return [...tr.querySelectorAll('[data-k]')].every(i=>!i.value.trim()); }
+function getRows(){ return [...tbody.rows].filter(r=>!isEmpty(r)).map(r=>{const o={}; r.querySelectorAll('[data-k]').forEach(i=>o[i.dataset.k]=i.value.trim()); o.__tr=r; return o;}); }
+const ALIAS = {m:'Male',f:'Female',na:'N/A','n/a':'N/A'};
+function normOpt(c, v){ if(!c.opts) return v; const a=ALIAS[String(v).trim().toLowerCase()]; if(a && c.opts.includes(a)) return a; const m=c.opts.find(o=>o.toLowerCase()===String(v).trim().toLowerCase()); return m ?? v; }
+function setCell(tr, ci, v){
+  const c = COLS[ci], el = tr.querySelector(`[data-k="${c.key}"]`);
+  v = normOpt(c, v);
+  if (c.opts && !c.opts.includes(v)) { el.insertAdjacentHTML('beforeend', `<option>${v}</option>`); }
+  el.value = v;
+}
+tbody.addEventListener('click', e => { if (e.target.closest('td.del button')) { e.target.closest('tr').remove(); if(!tbody.rows.length) addRow(); renumber(); saveDraft(); } });
+tbody.addEventListener('input', ()=>{ renumber(); saveDraft(); });
+tbody.addEventListener('paste', e => {
+  const target = e.target.closest('[data-k]'); if (!target) return;
+  const text = (e.clipboardData||window.clipboardData).getData('text'); if (!text || (!text.includes('\t') && !text.includes('\n'))) return;
+  e.preventDefault();
+  const lines = text.replace(/\r/g,'').replace(/\n+$/,'').split('\n').map(l=>l.split('\t'));
+  let tr = target.closest('tr'); const VC = visCols(); const startCol = VC.findIndex(i=>COLS[i].key===target.dataset.k);
+  // skip a header row if it matches column labels
+  if (lines.length>1 && lines[0].some(h=>COLS.some(c=>(colLabel(c)||'').toLowerCase()===h.trim().toLowerCase().replace(/ \*$/,'')))) lines.shift();
+  lines.forEach((cells,ri) => {
+    if (ri>0) tr = tr.nextElementSibling || addRow();
+    cells.forEach((v,ci)=>{ if (startCol+ci < VC.length) setCell(tr, VC[startCol+ci], v.trim()); });
+  });
+  renumber(); saveDraft();
+});
+$('#applydate').onclick = () => { const d=$('#alldate').value; if(!d) return; const any=[...tbody.rows].some(tr=>tr.querySelector('[data-k=sample_id]').value.trim()); [...tbody.rows].forEach(tr=>{ if(!any||tr.querySelector('[data-k=sample_id]').value.trim()) tr.querySelector('[data-k=collection_date]').value=d; }); renumber(); saveDraft(); };
+$('#addrow').onclick = () => { addRow(); saveDraft(); };
+$('#setrows').onclick = () => setRows(+$('#nsamples').value || 1);
+$('#dltemplate').onclick = () => {
+  const ws = XLSX.utils.aoa_to_sheet([visCols().map(i=>colLabel(COLS[i]))]);
+  ws['!cols'] = visCols().map(()=>({wch:18}));
+  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Samples');
+  XLSX.writeFile(wb, 'BCF_Metabolomics_sample_table_template.xlsx');
+};
+$('#upload').onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try {
+    const wb = XLSX.read(await f.arrayBuffer(), {type:'array'});
+    const ws = wb.Sheets['Samples'] || wb.Sheets[wb.SheetNames[0]];
+    const aoa = XLSX.utils.sheet_to_json(ws, {header:1, defval:'', raw:false}).filter(r=>r.some(v=>String(v).trim()));
+    if (!aoa.length) throw new Error('The file is empty.');
+    const hdr = aoa[0].map(h=>String(h).trim().toLowerCase().replace(/ \*$/,''));
+    const map = COLS.map(c=>hdr.findIndex(h=>h===(colLabel(c)||'#').toLowerCase()||h===c.key||(c.dyn&&Object.values(NORM).some(x=>x&&x.toLowerCase()===h))));
+    const hasHeader = map.some(i=>i>=0);
+    const body = hasHeader ? aoa.slice(1) : aoa;
+    tbody.innerHTML = '';
+    const VC = visCols(); body.forEach(r => { const tr = addRow(); COLS.forEach((c,ci)=>{ const i = hasHeader ? map[ci] : VC.indexOf(ci); if (i>=0 && r[i]!==undefined) setCell(tr, ci, String(r[i]).trim()); }); });
+    if (!tbody.rows.length) addRow();
+    renumber(); saveDraft();
+  } catch(err) { alertBox(['Could not read that file: ' + err.message]); }
+  e.target.value = '';
+};
+
+/* ---- validation & export ---- */
+const FIELD_LABEL = id => { const el=document.getElementById(id); const f=el.closest('.f'); const l=f && f.querySelector('.l'); return l ? l.textContent.trim() : id; };
+function validate(){
+  const errs = [];
+  document.querySelectorAll('.f.bad').forEach(f=>f.classList.remove('bad'));
+  document.querySelectorAll('[data-req]').forEach(el => {
+    const f = el.closest('.f'); if (!f || f.closest('.hidden') || f.classList.contains('hidden')) return;
+    const v = val(el.id); const empty = Array.isArray(v) ? !v.length : !v;
+    let bad = empty;
+    if (!empty && el.dataset.type==='email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { bad = true; errs.push(`${FIELD_LABEL(el.id)}: not a valid email address`); }
+    else if (empty) errs.push(`${FIELD_LABEL(el.id)} is required`);
+    if (bad) f.classList.add('bad');
+  });
+  const rows = getRows(); [...tbody.rows].forEach(r=>r.classList.remove('bad'));
+  if (!rows.length) errs.push('Add at least one sample to the sample table');
+  const seen = {};
+  rows.forEach((r,i) => {
+    const n = [...tbody.rows].indexOf(r.__tr)+1;
+    if (!r.sample_id) { errs.push(`Sample row ${n}: Sample ID is missing`); r.__tr.classList.add('bad'); }
+    if (!r.group) { errs.push(`Sample row ${n}: Group is missing`); r.__tr.classList.add('bad'); }
+    if (normLabel() && !r.norm_value) { errs.push(`Sample row ${n}: ${normLabel()} is missing`); r.__tr.classList.add('bad'); }
+    if (r.sample_id) { const k=r.sample_id.toLowerCase(); if (seen[k]) { errs.push(`Sample ID "${r.sample_id}" appears more than once`); r.__tr.classList.add('bad'); } seen[k]=1; }
+  });
+  if (!$('#confirm').checked) { errs.push('Please tick the confirmation box'); $('#confirm_wrap').classList.add('bad'); } else $('#confirm_wrap').classList.remove('bad');
+  return errs;
+}
+function alertBox(errs){
+  $('#summary').innerHTML = errs.length ? `<div class="box warn" role="alert"><b>Please fix the following:</b><ul>${errs.slice(0,15).map(e=>`<li>${e}</li>`).join('')}${errs.length>15?`<li>…and ${errs.length-15} more</li>`:''}</ul></div>` : '';
+}
+function institutionName(){
+  const t=val('institution_type');
+  if (derived('other_institution')) return val('institution_name');
+  if (t==='Academia') return val('academic_institution');
+  if (t==='Medical center / hospital') return val('medical_center');
+  if (t==='Industry') return val('company_name');
+  return '';
+}
+function collect(){
+  const techn = derived('technion');
+  const st = val('sample_type').map(s => s==='Other' ? `Other: ${val('sample_type_other')}` : s==='Tissue' ? `Tissue: ${val('tissue')}` : s);
+  return [
+    ['Your details','full_name','Full name',val('full_name')],
+    ['Your details','email','Email',val('email')],
+    ['Your details','mobile','Mobile phone',val('mobile')],
+    ['Your details','role','Role',val('role')==='Other'?val('role_other'):val('role')],
+    ['Your details','pi_name','PI name',val('pi_name')],
+    ['Your details','pi_email','PI email',val('pi_email')],
+    ['Institution','institution_type','Institution type',val('institution_type')],
+    ['Institution','institution','Institution',institutionName()],
+    ['Institution','department','Department / faculty',techn?val('faculty'):(derived('department')?val('department'):'')],
+    ['Billing','billing_budget','Budget number for billing',techn?val('billing_budget'):''],
+    ['Billing','reimbursement_budget','Reimbursement budget number (RTICC)',techn?val('reimbursement_budget'):''],
+    ['Experiment','experiment_title','Experiment title',val('experiment_title')],
+    ['Experiment','purpose_hypothesis','Purpose / hypothesis',val('purpose_hypothesis')],
+    ['Experiment','experiment_date','Sample collection date (earliest)',earliestDate()],
+    ['Experiment','species','Species',val('species')==='Other'?val('species_other'):val('species')],
+    ['Experiment','strain_or_cell_line','Cell line',val('species')==='Cell line'?val('strain_or_cell_line'):''],
+    ['Experiment','sample_type','Sample type',st.join('; ')],
+    ['Experiment','comparisons','Groups / comparisons of interest',val('comparisons')],
+    ['Experiment','metabolites_of_interest','Metabolites / pathways of interest',val('metabolites_of_interest')],
+    ['Sample handling','normalization_measure','Biological normalization measure',val('normalization_measure')==='Other'?val('normalization_other'):val('normalization_measure')],
+    ['Sample handling','storage_temperature','Storage temperature',val('storage_temperature')],
+    ['Sample handling','already_extracted','Already extracted',val('already_extracted')],
+    ['Sample handling','extraction_solvent','Extraction solvent',val('already_extracted')==='Yes'?val('extraction_solvent'):''],
+    ['Sample handling','comments','Comments',val('comments')]
+  ];
+}
+function safe(s){ return (s||'').normalize('NFKD').replace(/[^\w\-]+/g,'_').replace(/_+/g,'_').replace(/^_|_$/g,'').slice(0,40) || 'request'; }
+$('#export').onclick = () => {
+  const errs = validate(); alertBox(errs);
+  if (errs.length) { const first=document.querySelector('.f.bad, tr.bad'); if (first) first.scrollIntoView({behavior:'smooth',block:'center'}); return; }
+  const now = new Date(); const stamp = now.toISOString();
+  const day = stamp.slice(0,10);
+  const pi = val('pi_name').trim().split(/\s+/).pop();
+  const id = `BCF-MET-${day.replace(/-/g,'')}-${safe(pi)}`;
+  const meta = collect();
+  const info = [['Field','Value'],['Request ID',id],['Submitted (UTC)',stamp],['Form version',FORM_VERSION],['Number of samples',getRows().length]];
+  const sub = [['Section','Key','Field','Value'], ...meta];
+  const VC = visCols(); const smp = [VC.map(i=>colLabel(COLS[i])), ...getRows().map(r=>VC.map(i=>r[COLS[i].key]))];
+  const wb = XLSX.utils.book_new();
+  const w1 = XLSX.utils.aoa_to_sheet(sub); w1['!cols']=[{wch:16},{wch:24},{wch:36},{wch:60}];
+  const w2 = XLSX.utils.aoa_to_sheet(smp); w2['!cols']=VC.map(()=>({wch:16}));
+  const w3 = XLSX.utils.aoa_to_sheet(info); w3['!cols']=[{wch:20},{wch:40}];
+  XLSX.utils.book_append_sheet(wb, w1, 'Submission');
+  XLSX.utils.book_append_sheet(wb, w2, 'Samples');
+  XLSX.utils.book_append_sheet(wb, w3, 'Info');
+  XLSX.writeFile(wb, `BCF_Metabolomics_${safe(pi)}_${day}.xlsx`);
+  $('#summary').innerHTML = `<div class="box" style="font-size:14px">File downloaded: <b>BCF_Metabolomics_${safe(pi)}_${day}.xlsx</b>. Please email it to <a href="mailto:${SUBMIT_EMAIL}?subject=${encodeURIComponent('Metabolomics sample submission '+id)}">${SUBMIT_EMAIL}</a>.</div>`;
+};
+
+/* ---- draft (per-browser convenience only) ---- */
+const DKEY='bcf-metab-draft-v2';
+function saveDraft(){
+  try {
+    const d={}; document.querySelectorAll('#form [id]').forEach(el=>{ if(['INPUT','SELECT','TEXTAREA'].includes(el.tagName)&&el.type!=='file'&&el.type!=='radio'&&el.type!=='checkbox') d[el.id]=el.value; if(el.hasAttribute('data-radio')||el.hasAttribute('data-check')) d[el.id]=val(el.id); });
+    d.__rows=[...tbody.rows].map(r=>{const o={}; r.querySelectorAll('[data-k]').forEach(i=>o[i.dataset.k]=i.value); return o;});
+    localStorage.setItem(DKEY, JSON.stringify(d));
+  } catch(e){}
+}
+function loadDraft(){
+  let d=null; try { d=JSON.parse(localStorage.getItem(DKEY)||'null'); } catch(e){}
+  if (d) {
+    Object.entries(d).forEach(([k,v])=>{ const el=document.getElementById(k); if(!el||k==='__rows') return;
+      if(el.hasAttribute('data-radio')) el.querySelectorAll('input').forEach(i=>i.checked=i.value===v);
+      else if(el.hasAttribute('data-check')) el.querySelectorAll('input').forEach(i=>i.checked=(v||[]).includes(i.value));
+      else el.value=v; });
+  }
+  tbody.innerHTML='';
+  (d&&d.__rows&&d.__rows.length? d.__rows : Array.from({length:6},()=>({}))).forEach(r=>addRow(r));
+}
+$('#reset').onclick = () => { if (!confirmClear()) return; try{localStorage.removeItem(DKEY);}catch(e){} location.reload(); };
+function confirmClear(){ const b=$('#reset'); if (b.dataset.armed) return true; b.dataset.armed='1'; b.textContent='Click again to clear everything'; setTimeout(()=>{delete b.dataset.armed; b.textContent='Clear form';},4000); return false; }
+
+document.getElementById('form').addEventListener('input', refresh);
+document.getElementById('form').addEventListener('change', refresh);
+loadDraft(); refresh();
+</script>
+</body>
+</html>
