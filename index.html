@@ -28,6 +28,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-
 .opts{display:flex;flex-wrap:wrap;gap:6px 16px}
 .opts label{display:flex;gap:6px;align-items:center;font-size:14px;cursor:pointer}
 .box{background:var(--accent-bg);border-radius:8px;padding:12px 14px;font-size:16px;line-height:1.5}
+.box.rticc{border-left:4px solid var(--accent);border-radius:0 8px 8px 0;font-size:16px}
 .box.warn{background:var(--warn-bg);color:var(--warn);font-size:14px}
 .hidden{display:none!important}
 .f.bad input,.f.bad select,.f.bad textarea{border-color:var(--err)}
@@ -39,7 +40,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-
 .btn:hover{filter:brightness(.95)}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px;margin-top:10px}
-table.samples{border-collapse:collapse;width:100%;min-width:860px;font-size:14px}
+table.samples{border-collapse:collapse;width:100%;min-width:960px;font-size:14px}
 table.samples th{background:var(--accent-bg);text-align:left;font-weight:600;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
 table.samples td{border-bottom:1px solid var(--line);padding:0}
 table.samples td.idx{color:var(--muted);text-align:center;width:36px;font-size:12px}
@@ -48,6 +49,11 @@ table.samples td.del{width:32px;text-align:center}
 table.samples td.del button{border:0;background:none;color:var(--muted);cursor:pointer;font-size:16px}
 table.samples tr.bad td{background:rgba(180,35,24,.08)}
 #summary{margin-top:10px}
+.chip{display:inline-block;background:var(--accent-bg);color:var(--accent);border-radius:12px;padding:1px 10px;margin:2px 2px;font-weight:600;font-size:13px}
+.comp{border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-bottom:8px}
+.comp select{width:auto;min-width:160px}
+.comp.bad{border-color:var(--err);background:rgba(180,35,24,.06)}
+.comp .lbl{font-size:12px;color:var(--muted);display:block}
 table.samples.nonorm [data-col=norm_value]{display:none}
 #summary ul{margin:6px 0 0;padding-left:20px}
 footer{color:var(--muted);font-size:13px;text-align:center;margin-top:28px}
@@ -96,8 +102,16 @@ footer{color:var(--muted);font-size:13px;text-align:center;margin-top:28px}
     <div class="f hidden" data-show="@department"><label class="l req" for="department">Department / unit</label><input type="text" id="department" data-req></div>
     <div class="f hidden" data-show="@technion"><label class="l req" for="faculty">Faculty</label><select id="faculty" data-req></select></div>
     <div class="f hidden" data-show="@technion"><label class="l req" for="billing_budget">Budget number for billing</label><input type="text" id="billing_budget" data-req><span class="hint">The budget number to be charged for the analysis</span></div>
-    <div class="f full hidden" data-show="@technion"><div class="box"><b>RTICC subsidy.</b> Technion researchers are eligible for a subsidy of up to 25% from RTICC – Rappaport Technion Integrated Cancer Center, subject to the remaining subsidy balance. The subsidy will be refunded later to the reimbursement budget below.</div></div>
-    <div class="f hidden" data-show="@technion"><label class="l req" for="reimbursement_budget">Reimbursement budget number</label><input type="text" id="reimbursement_budget" data-req><span class="hint">Reimbursement budget number in company 2070 (budget number starting with 712)</span></div>
+    <div class="f full hidden" data-show="@technion"><div class="box rticc"><b>Subsidy for Technion researchers – RTICC</b><br>Technion researchers are eligible for a subsidy of up to 25% from <b>RTICC – Rappaport Technion Integrated Cancer Center</b>, subject to the remaining subsidy balance. The subsidy will be refunded later to your reimbursement budget.<br><b>Please enter below a reimbursement budget number in company 2070 (a budget number starting with 712).</b></div></div>
+    <div class="f hidden" data-show="@technion"><label class="l req" for="reimbursement_budget">Reimbursement budget number (company 2070, starts with 712)</label><input type="text" id="reimbursement_budget" data-req></div>
+    <div class="f full hidden" data-show="@external"><span class="l req">Purchase order (PO)</span>
+      <div class="opts" id="po_status" data-req data-radio>
+        <label><input type="radio" name="po_status" value="have">I have a PO</label>
+        <label><input type="radio" name="po_status" value="pending">PO is in process – the price quote is approved and I will send the PO soon</label>
+      </div></div>
+    <div class="f hidden" data-show="po_status=have"><label class="l req" for="po_number">PO number</label><input type="text" id="po_number" data-req></div>
+    <div class="f hidden" data-show="po_status=have"><label class="l req" for="po_file">PO file (PDF)</label><input type="file" id="po_file" accept="application/pdf,.pdf" data-req><span class="hint">Downloaded together with your submission file, renamed to match it – attach both to the email</span></div>
+    <div class="f hidden" data-show="po_status=pending"><label class="l" for="quote_number">Price quote number</label><input type="text" id="quote_number" placeholder="Optional"></div>
   </div>
 </section>
 
@@ -117,7 +131,6 @@ footer{color:var(--muted);font-size:13px;text-align:center;margin-top:28px}
       </div></div>
     <div class="f hidden" data-show="sample_type~Tissue"><label class="l req" for="tissue">Tissue</label><input type="text" id="tissue" data-req placeholder="e.g. liver, brain"></div>
     <div class="f hidden" data-show="sample_type~Other"><label class="l req" for="sample_type_other">Sample type (other)</label><input type="text" id="sample_type_other" data-req></div>
-    <div class="f full"><label class="l req" for="comparisons">Groups / comparisons of interest</label><textarea id="comparisons" data-req placeholder="e.g. WT vs KO; treated vs control"></textarea><span class="hint">Use the same group names as in the Group column of the sample table</span></div>
     <div class="f full"><label class="l" for="metabolites_of_interest">Metabolites / pathways of interest</label><textarea id="metabolites_of_interest" placeholder="Optional"></textarea></div>
   </div>
 </section>
@@ -141,14 +154,25 @@ footer{color:var(--muted);font-size:13px;text-align:center;margin-top:28px}
 <!-- 5 -->
 <section class="card">
   <h2><span class="n">5</span>Samples</h2>
-  <p class="sub">One row per sample. Paste straight from Excel into any cell, or upload a filled table. <b>Sample ID</b> and <b>Group</b> are required.</p>
-  <div class="row">
+  <p class="sub">One row per sample. <b>Sample ID</b> and <b>Group</b> are required. Fill the table in one of two ways:</p>
+  <div class="box" style="font-size:15px">
+    <b>Option A – Excel template:</b>
+    <ol style="margin:6px 0 10px;padding-left:22px">
+      <li>Download the template table (.xlsx).</li>
+      <li>Fill in one row per sample in Excel and save.</li>
+      <li>Upload it back here. The table below fills in automatically.</li>
+    </ol>
+    <div class="row">
+      <button type="button" class="btn primary" id="dltemplate">⬇ Download template table</button>
+      <label class="btn" for="upload" style="display:inline-block">⬆ Upload filled template<input type="file" id="upload" accept=".xlsx,.xls,.csv" class="hidden"></label>
+    </div>
+    <p style="margin:10px 0 0"><b>Option B – directly here:</b> type in the table below, or copy rows from Excel and paste them into the first cell.</p>
+  </div>
+  <div class="row" style="margin-top:12px">
     <label class="l" for="nsamples">Number of samples</label>
     <input type="number" id="nsamples" min="1" max="2000" style="width:110px">
     <button type="button" class="btn" id="setrows">Set rows</button>
     <button type="button" class="btn" id="addrow">+ Add row</button>
-    <button type="button" class="btn" id="dltemplate">Download blank table</button>
-    <label class="btn" for="upload" style="display:inline-block">Upload filled table<input type="file" id="upload" accept=".xlsx,.xls,.csv" class="hidden"></label>
   </div>
   <div class="row" style="margin-top:10px">
     <label class="l" for="alldate">Same collection date for all samples?</label>
@@ -157,6 +181,11 @@ footer{color:var(--muted);font-size:13px;text-align:center;margin-top:28px}
   </div>
   <div class="tablewrap"><table class="samples" id="samples"><thead></thead><tbody></tbody></table></div>
   <p class="hint" id="rowcount"></p>
+  <h3 style="margin:22px 0 4px;font-size:17px">Comparisons <span style="color:var(--err)">*</span></h3>
+  <p class="sub" style="margin:0 0 8px">Choose which groups to compare. The groups are taken from the <b>Group</b> column above, exactly as written. For each comparison, the <b>numerator</b> is the test group and the <b>denominator</b> is the reference (e.g. KO vs WT → fold change = KO / WT).</p>
+  <div id="comps"></div>
+  <button type="button" class="btn" id="addcomp">+ Add comparison</button>
+  <div class="f full" style="margin-top:12px"><label class="l" for="comparisons_notes">Notes on the comparisons</label><textarea id="comparisons_notes" placeholder="Optional – e.g. paired design, time course, interaction of interest"></textarea></div>
 </section>
 
 <!-- 6 -->
@@ -164,7 +193,7 @@ footer{color:var(--muted);font-size:13px;text-align:center;margin-top:28px}
   <h2><span class="n">6</span>Before you send</h2>
   <label style="display:flex;flex-direction:row;gap:8px;align-items:flex-start;cursor:pointer" id="confirm_wrap"><input type="checkbox" id="confirm" style="margin-top:4px"><span>I confirm that the information in this form is correct and complete.</span></label>
   <div class="row" style="margin-top:14px">
-    <button type="button" class="btn primary" id="export">Download (.xlsx)</button>
+    <button type="button" class="btn primary" id="export">Download submission file</button>
     <button type="button" class="btn" id="reset">Clear form</button>
   </div>
   <div id="summary"></div>
@@ -175,9 +204,10 @@ footer{color:var(--muted);font-size:13px;text-align:center;margin-top:28px}
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <script>
 /* ===== Configuration (edit here) ===== */
-const FORM_VERSION = "1.1";
+const FORM_VERSION = "1.7";
 const SUBMIT_EMAIL = "metabolomics@technion.ac.il";
 const ACADEMIC = ["Technion – Israel Institute of Technology","Ariel University","Bar-Ilan University","Ben Gurion University","Haifa University","MIGAL – Galilee Research Institute","Tel-Aviv University","Tel-Hai Academic College","The Hebrew University","Volcani Center","Weizmann Institute of Science"];
 const MEDICAL = ["Bnai Zion Medical Center","Emek Medical Center","Galilee Medical Center","Hadassah Medical Center","Meir Medical Center","Rambam Health Care Campus","Sheba Medical Care Center"];
@@ -188,6 +218,7 @@ const NOT_LISTED = "Other – not listed";
 const TECHNION = ACADEMIC[0];
 const COLS = [
   {key:"sample_id",label:"Sample ID",req:true},
+  {key:"sample_name",label:"Sample name"},
   {key:"group",label:"Group",req:true},
   {key:"bio_replicate",label:"Biological replicate"},
   {key:"sex",label:"Sex",opts:["","Male","Female","Mixed","Unknown","N/A"]},
@@ -222,6 +253,7 @@ function derived(name){
   const t = val('institution_type'), a = val('academic_institution'), m = val('medical_center');
   switch(name){
     case 'technion': return t==='Academia' && a===TECHNION;
+    case 'external': return !!t && !(t==='Academia' && (!a || a===TECHNION)) && !(t==='Medical center / hospital' && !m);
     case 'other_institution': return t==='Other' || (t==='Academia' && a===NOT_LISTED) || (t==='Medical center / hospital' && m===NOT_LISTED);
     case 'department': return (t==='Academia' && a && a!==TECHNION && a!==NOT_LISTED) || (t==='Medical center / hospital' && m && m!==NOT_LISTED);
   }
@@ -252,11 +284,13 @@ function cellHTML(c, v=''){
 function addRow(data={}){
   const tr = document.createElement('tr');
   tr.innerHTML = '<td class="idx"></td>' + COLS.map(c=>`<td data-col="${c.key}">${cellHTML(c, data[c.key]??'')}</td>`).join('') + '<td class="del"><button type="button" title="Delete row" aria-label="Delete row">×</button></td>';
-  tbody.appendChild(tr); renumber(); return tr;
+  tbody.appendChild(tr);
+  const idEl = tr.querySelector('[data-k=sample_id]'); if (!idEl.value.trim()) idEl.value = padId(tbody.rows.length, tbody.rows.length);
+  renumber(); return tr;
 }
 function renumber(){ [...tbody.rows].forEach((r,i)=>r.cells[0].textContent=i+1); const n=getRows().length; $('#rowcount').textContent = `${tbody.rows.length} rows · ${n} filled`; }
 function setRows(n){ n=Math.max(1,Math.min(2000,n|0)); while(tbody.rows.length<n) addRow(); while(tbody.rows.length>n && isEmpty(tbody.rows[tbody.rows.length-1])) tbody.deleteRow(-1); renumber(); saveDraft(); }
-function isEmpty(tr){ return [...tr.querySelectorAll('[data-k]')].every(i=>!i.value.trim()); }
+function isEmpty(tr){ return [...tr.querySelectorAll('[data-k]')].every(i=>i.dataset.k==='sample_id' || !i.value.trim()); }
 function getRows(){ return [...tbody.rows].filter(r=>!isEmpty(r)).map(r=>{const o={}; r.querySelectorAll('[data-k]').forEach(i=>o[i.dataset.k]=i.value.trim()); o.__tr=r; return o;}); }
 const ALIAS = {m:'Male',f:'Female',na:'N/A','n/a':'N/A'};
 function normOpt(c, v){ if(!c.opts) return v; const a=ALIAS[String(v).trim().toLowerCase()]; if(a && c.opts.includes(a)) return a; const m=c.opts.find(o=>o.toLowerCase()===String(v).trim().toLowerCase()); return m ?? v; }
@@ -266,8 +300,8 @@ function setCell(tr, ci, v){
   if (c.opts && !c.opts.includes(v)) { el.insertAdjacentHTML('beforeend', `<option>${v}</option>`); }
   el.value = v;
 }
-tbody.addEventListener('click', e => { if (e.target.closest('td.del button')) { e.target.closest('tr').remove(); if(!tbody.rows.length) addRow(); renumber(); saveDraft(); } });
-tbody.addEventListener('input', ()=>{ renumber(); saveDraft(); });
+tbody.addEventListener('click', e => { if (e.target.closest('td.del button')) { e.target.closest('tr').remove(); if(!tbody.rows.length) addRow(); renumber(); renderComps(); saveDraft(); } });
+tbody.addEventListener('input', e=>{ renumber(); if(e.target.dataset.k==='group') renderComps(); saveDraft(); });
 tbody.addEventListener('paste', e => {
   const target = e.target.closest('[data-k]'); if (!target) return;
   const text = (e.clipboardData||window.clipboardData).getData('text'); if (!text || (!text.includes('\t') && !text.includes('\n'))) return;
@@ -280,17 +314,86 @@ tbody.addEventListener('paste', e => {
     if (ri>0) tr = tr.nextElementSibling || addRow();
     cells.forEach((v,ci)=>{ if (startCol+ci < VC.length) setCell(tr, VC[startCol+ci], v.trim()); });
   });
-  renumber(); saveDraft();
+  renumber(); renderComps(); saveDraft();
 });
 $('#applydate').onclick = () => { const d=$('#alldate').value; if(!d) return; const any=[...tbody.rows].some(tr=>tr.querySelector('[data-k=sample_id]').value.trim()); [...tbody.rows].forEach(tr=>{ if(!any||tr.querySelector('[data-k=sample_id]').value.trim()) tr.querySelector('[data-k=collection_date]').value=d; }); renumber(); saveDraft(); };
 $('#addrow').onclick = () => { addRow(); saveDraft(); };
 $('#setrows').onclick = () => setRows(+$('#nsamples').value || 1);
-$('#dltemplate').onclick = () => {
-  const ws = XLSX.utils.aoa_to_sheet([visCols().map(i=>colLabel(COLS[i]))]);
-  ws['!cols'] = visCols().map(()=>({wch:18}));
-  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Samples');
-  XLSX.writeFile(wb, 'BCF_Metabolomics_sample_table_template.xlsx');
-};
+function padId(n, total){ const w = Math.max(2, String(Math.max(total||0,n)).length); return String(n).padStart(w,'0'); }
+function tubePNG(){
+  const c=document.createElement('canvas'); c.width=330; c.height=215; const g=c.getContext('2d');
+  g.fillStyle='#ffffff'; g.fillRect(0,0,330,215);
+  const tube=(x,label)=>{
+    g.lineWidth=3; g.strokeStyle='#0b5c8c';
+    g.fillStyle='#e8f2f9'; g.beginPath(); g.roundRect(x-8,22,76,20,6); g.fill(); g.stroke();        // cap
+    g.beginPath(); g.moveTo(x,42); g.lineTo(x,120); g.quadraticCurveTo(x+30,190,x+60,120); g.lineTo(x+60,42); g.closePath(); g.fillStyle='#f4f8fb'; g.fill(); g.stroke();
+    g.fillStyle='#ffe066'; g.fillRect(x+5,62,50,34); g.strokeRect(x+5,62,50,34);                    // label
+    g.fillStyle='#1d2433'; g.font='bold 24px Arial'; g.textAlign='center'; g.fillText(label,x+30,88);
+  };
+  tube(40,'01'); tube(135,'02'); tube(230,'03');
+  g.fillStyle='#b42318'; g.font='bold 16px Arial'; g.textAlign='center'; g.fillText('Write ONLY the Sample ID on the tube',165,208);
+  return c.toDataURL('image/png');
+}
+async function buildTemplate(){
+  const VC = visCols(); const cols = VC.map(i=>COLS[i]);
+  const filled = getRows().length, nset = +$('#nsamples').value || 0;
+  const N = Math.max(24, nset, filled, tbody.rows.length);
+  const wb = new ExcelJS.Workbook(); wb.creator='BCF Metabolomics';
+  const ws = wb.addWorksheet('Samples', {views:[{state:'frozen', ySplit:6}]});
+  const last = cols.length; const lastL = ws.getColumn(last).letter;
+  ws.columns = cols.map(c=>({width: c.key==='sample_id'?14 : c.key==='notes'?30 : 18}));
+  const YEL='FFFFE066', YEL2='FFFFF5CC', BLUE='FF0B5C8C', HDR='FFE8F2F9', RED='FFB42318';
+  const banner=(r,text,opts={})=>{ ws.mergeCells(`A${r}:${lastL}${r}`); const cell=ws.getCell(`A${r}`); cell.value=text; cell.font={bold:true,size:opts.size||12,color:{argb:opts.color||'FF1D2433'}}; cell.alignment={vertical:'middle',wrapText:true}; if(opts.fill) cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:opts.fill}}; ws.getRow(r).height=opts.h||22; };
+  banner(1,'⚠  LABEL EACH TUBE WITH THE SAMPLE ID NUMBER ONLY  (01, 02, 03 …)',{size:16,color:RED,fill:YEL,h:34});
+  banner(2,'The yellow Sample ID column is already filled in. Write exactly this number on each tube – no names, dates or group names on the tube itself.',{size:12,fill:YEL2,h:36});
+  banner(3,'Fill in one row per sample. Columns marked * are required. Do not change the header row. Delete unused rows or leave them empty.',{size:11,h:30});
+  banner(4,'👉 See the "Examples" tab (bottom of the window) for filled-in examples of different experiment types.',{size:11,color:BLUE,h:24});
+  ws.getRow(5).height=8;
+  // header row 6
+  const H=6; const hr=ws.getRow(H);
+  cols.forEach((c,i)=>{ const cell=hr.getCell(i+1); cell.value = colLabel(c)+(c.req||c.dyn?' *':''); cell.font={bold:true,size:12,color:{argb: c.key==='sample_id'?'FF1D2433':'FF1D2433'}}; cell.fill={type:'pattern',pattern:'solid',fgColor:{argb: c.key==='sample_id'?YEL:HDR}}; cell.alignment={vertical:'middle',horizontal:'center',wrapText:true}; cell.border={bottom:{style:'medium',color:{argb:BLUE}}}; });
+  hr.height=30;
+  const existing = getRows();
+  for (let k=0;k<N;k++){
+    const row = ws.getRow(H+1+k); const src = existing[k];
+    cols.forEach((c,i)=>{ const cell=row.getCell(i+1);
+      if (c.key==='sample_id'){ cell.value = (src&&src.sample_id) || padId(k+1,N); cell.numFmt='@'; cell.font={bold:true,size:13}; cell.alignment={horizontal:'center'}; cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:YEL2}}; cell.border={left:{style:'medium',color:{argb:'FFE0B000'}},right:{style:'medium',color:{argb:'FFE0B000'}}}; }
+      else { if (src && src[c.key]) cell.value = src[c.key]; cell.numFmt='@'; }
+      if (c.opts) cell.dataValidation={type:'list',allowBlank:true,formulae:['"'+c.opts.filter(Boolean).join(',')+'"'],showErrorMessage:true,errorTitle:'Sex',error:'Choose Male, Female, Mixed, Unknown or N/A'};
+    });
+  }
+  try { const img = wb.addImage({base64: tubePNG(), extension:'png'}); ws.addImage(img, {tl:{col:last+0.3,row:0}, ext:{width:264,height:172}}); } catch(e){}
+  // Examples
+  const ex = wb.addWorksheet('Examples'); ex.columns=[{width:12},{width:16},{width:18},{width:12},{width:10},{width:10},{width:14},{width:16},{width:12},{width:16},{width:18},{width:34}];
+  let r=1;
+  const t=(text,fill,size=13,color='FF1D2433')=>{ ex.mergeCells(`A${r}:L${r}`); const c=ex.getCell(`A${r}`); c.value=text; c.font={bold:true,size,color:{argb:color}}; if(fill) c.fill={type:'pattern',pattern:'solid',fgColor:{argb:fill}}; c.alignment={wrapText:true,vertical:'middle'}; ex.getRow(r).height=size>13?28:22; r++; };
+  const note=(text)=>{ ex.mergeCells(`A${r}:L${r}`); const c=ex.getCell(`A${r}`); c.value=text; c.font={italic:true,size:11}; c.alignment={wrapText:true}; ex.getRow(r).height=20; r++; };
+  const table=(hdr,rows)=>{ const h=ex.getRow(r); hdr.forEach((v,i)=>{ const c=h.getCell(i+1); c.value=v; c.font={bold:true}; c.fill={type:'pattern',pattern:'solid',fgColor:{argb: i===0?YEL:HDR}}; c.alignment={horizontal:'center',wrapText:true}; }); h.height=30; r++;
+    rows.forEach(v=>{ const row=ex.getRow(r); v.forEach((x,i)=>{ const c=row.getCell(i+1); c.value=x; c.numFmt='@'; if(i===0){ c.font={bold:true}; c.alignment={horizontal:'center'}; c.fill={type:'pattern',pattern:'solid',fgColor:{argb:YEL2}}; } }); r++; }); r+=2; };
+  t('EXAMPLES – how a filled sample table looks for different experiments', YEL, 15, RED);
+  note('These are examples only – fill your own samples in the "Samples" tab. The normalization column appears only if you chose a biological normalization measure in the form.');
+  r++;
+  const base=['Sample ID *','Sample name','Group *','Biological replicate','Sex','Age','Genotype','Treatment','Time point','Collection date'];
+  t('Example 1 – Mouse plasma, WT vs KO (no normalization measure)', HDR);
+  note('In the form: Species = Mouse; Sample type = Plasma; Comparison = KO vs WT; Normalization = None.');
+  table([...base,'','Notes'],[['01','WT-M1','WT','1','Male','10w','WT','','','2026-10-01','',''],['02','WT-M2','WT','2','Male','10w','WT','','','2026-10-01','',''],['03','WT-M3','WT','3','Male','10w','WT','','','2026-10-01','',''],['04','KO-M1','KO','1','Male','10w','Gene X KO','','','2026-10-01','',''],['05','KO-M2','KO','2','Male','10w','Gene X KO','','','2026-10-01','',''],['06','KO-M3','KO','3','Male','10w','Gene X KO','','','2026-10-01','','hemolyzed']]);
+  t('Example 2 – Cell culture, drug time course, normalized by cell count', HDR);
+  note('In the form: Species = Cell line (HeLa); Sample type = Cell pellet; Comparisons = Drug_6h vs Control_6h; Drug_24h vs Control_24h; Normalization = Cell count.');
+  table([...base,'Cell count *','Notes'],[['01','Ctrl6h-a','Control_6h','1','N/A','','','DMSO','6h','2026-10-05','1000000',''],['02','Ctrl6h-b','Control_6h','2','N/A','','','DMSO','6h','2026-10-05','950000',''],['03','Drug6h-a','Drug_6h','1','N/A','','','Drug A 10 µM','6h','2026-10-05','980000',''],['04','Drug6h-b','Drug_6h','2','N/A','','','Drug A 10 µM','6h','2026-10-05','1020000',''],['05','Ctrl24h-a','Control_24h','1','N/A','','','DMSO','24h','2026-10-06','1500000',''],['06','Drug24h-a','Drug_24h','1','N/A','','','Drug A 10 µM','24h','2026-10-06','1100000','']]);
+  t('Example 3 – Mouse liver tissue, diet study, normalized by tissue weight', HDR);
+  note('In the form: Species = Mouse; Sample type = Tissue (liver); Comparison = HFD vs Chow; Normalization = Tissue weight (mg).');
+  table([...base,'Tissue weight (mg) *','Notes'],[['01','Chow-1','Chow','1','Female','16w','WT','Chow diet','','2026-09-20','21.4',''],['02','Chow-2','Chow','2','Female','16w','WT','Chow diet','','2026-09-20','19.8',''],['03','HFD-1','HFD','1','Female','16w','WT','High-fat diet','','2026-09-20','22.1',''],['04','HFD-2','HFD','2','Female','16w','WT','High-fat diet','','2026-09-20','20.6','']]);
+  t('Example 4 – Human serum, patients vs healthy controls', HDR);
+  note('In the form: Species = Human; Sample type = Serum; Comparison = Patient vs Healthy. Never write names or ID numbers – only the Sample ID.');
+  table([...base,'','Notes'],[['01','H-01','Healthy','1','Female','45y','','','','2026-08-11','',''],['02','H-02','Healthy','2','Male','52y','','','','2026-08-11','',''],['03','P-01','Patient','1','Female','47y','','','','2026-08-12','',''],['04','P-02','Patient','2','Male','55y','','','','2026-08-12','','fasting']]);
+  // Instructions
+  const ins = wb.addWorksheet('Instructions'); ins.getColumn(1).width=120;
+  ['How to fill the sample table','','• Label every tube with its Sample ID number only (01, 02, 03 …). The numbers are already filled in.','• One row per sample. Do not change the column headers.','• Columns marked * are required.','• Sample name (optional): your own name for the sample, for your reference only – do NOT write it on the tube.','• Group: the experimental group / condition (e.g. WT, KO). Write each group name exactly the same way in all its rows – after uploading, you will choose the comparisons between these groups in the form.','• Sex: Male, Female, Mixed, Unknown or N/A.','• Collection date: YYYY-MM-DD.',...(normLabel()?[`• ${normLabel()}: the value of your biological normalization measure for each sample.`]:[]),'','When done, save the file and upload it back in the submission page (Samples section).']
+    .forEach((x,i)=>{ const c=ins.getCell(i+1,1); c.value=x; if(i===0) c.font={bold:true,size:14}; if(i===2) c.font={bold:true,color:{argb:RED}}; });
+  const buf = await wb.xlsx.writeBuffer();
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})); a.download='BCF_Metabolomics_sample_table_template.xlsx'; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},2000);
+}
+$('#dltemplate').onclick = () => { buildTemplate().catch(err=>alertBox(['Could not create the template: '+err.message])); };
 $('#upload').onchange = async e => {
   const f = e.target.files[0]; if (!f) return;
   try {
@@ -298,17 +401,57 @@ $('#upload').onchange = async e => {
     const ws = wb.Sheets['Samples'] || wb.Sheets[wb.SheetNames[0]];
     const aoa = XLSX.utils.sheet_to_json(ws, {header:1, defval:'', raw:false}).filter(r=>r.some(v=>String(v).trim()));
     if (!aoa.length) throw new Error('The file is empty.');
-    const hdr = aoa[0].map(h=>String(h).trim().toLowerCase().replace(/ \*$/,''));
+    let hi = aoa.slice(0,25).findIndex(r=>r.some(v=>String(v).trim().toLowerCase().replace(/ \*$/,'')==='sample id'));
+    if (hi<0) hi = 0;
+    const hdr = aoa[hi].map(h=>String(h).trim().toLowerCase().replace(/ \*$/,''));
     const map = COLS.map(c=>hdr.findIndex(h=>h===(colLabel(c)||'#').toLowerCase()||h===c.key||(c.dyn&&Object.values(NORM).some(x=>x&&x.toLowerCase()===h))));
     const hasHeader = map.some(i=>i>=0);
-    const body = hasHeader ? aoa.slice(1) : aoa;
+    const body = (hasHeader ? aoa.slice(hi+1) : aoa).filter(r=>{ const idI = hasHeader?map[0]:0; return r.some((v,i)=>i!==idI && String(v).trim()); });
     tbody.innerHTML = '';
     const VC = visCols(); body.forEach(r => { const tr = addRow(); COLS.forEach((c,ci)=>{ const i = hasHeader ? map[ci] : VC.indexOf(ci); if (i>=0 && r[i]!==undefined) setCell(tr, ci, String(r[i]).trim()); }); });
     if (!tbody.rows.length) addRow();
-    renumber(); saveDraft();
+    renumber(); renderComps(); saveDraft();
   } catch(err) { alertBox(['Could not read that file: ' + err.message]); }
   e.target.value = '';
 };
+
+
+/* ---- comparisons ---- */
+let COMPS = [];
+const esc = x => String(x).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function groups(){ const g=[]; getRows().forEach(r=>{ if(r.group && !g.includes(r.group)) g.push(r.group); }); return g; }
+function gopts(g, v){ let o='<option value="">Select group…</option>'+g.map(x=>`<option${x===v?' selected':''}>${esc(x)}</option>`).join(''); if(v && !g.includes(v)) o+=`<option selected value="${esc(v)}">${esc(v)} (not in table)</option>`; return o; }
+function renderComps(){
+  const g=groups(), box=$('#comps'), add=$('#addcomp');
+  if (g.length<2){
+    box.innerHTML = `<p class="hint">${g.length ? `Only one group so far (<span class="chip">${esc(g[0])}</span>). Add another group in the table to define comparisons.` : 'Fill in the Group column above – your groups will appear here.'}</p>`;
+    add.classList.add('hidden'); return;
+  }
+  add.classList.remove('hidden');
+  if (!COMPS.length) COMPS.push({num:'',den:''});
+  box.innerHTML = `<p class="hint" style="margin:0 0 8px">Groups in your table: ${g.map(x=>`<span class="chip">${esc(x)}</span>`).join('')}</p>` +
+    COMPS.map((c,i)=>`<div class="comp row" data-i="${i}"><b style="min-width:26px">#${i+1}</b>
+      <label><span class="lbl">Numerator (test group)</span><select data-f="num">${gopts(g,c.num)}</select></label>
+      <b style="align-self:flex-end;padding-bottom:8px">vs</b>
+      <label><span class="lbl">Denominator (reference / control)</span><select data-f="den">${gopts(g,c.den)}</select></label>
+      <button type="button" class="btn" data-del style="align-self:flex-end;margin-inline-start:auto">Remove</button></div>`).join('');
+}
+$('#comps').addEventListener('change', e=>{ const d=e.target.closest('.comp'); if(!d) return; COMPS[+d.dataset.i][e.target.dataset.f]=e.target.value; d.classList.remove('bad'); saveDraft(); });
+$('#comps').addEventListener('click', e=>{ if(!e.target.matches('[data-del]')) return; COMPS.splice(+e.target.closest('.comp').dataset.i,1); renderComps(); saveDraft(); });
+$('#addcomp').onclick = () => { COMPS.push({num:'',den:''}); renderComps(); saveDraft(); };
+function compErrors(){
+  const g=groups(), errs=[]; if (g.length<2) return errs;
+  if (!COMPS.length) errs.push('Add at least one comparison');
+  const seen={};
+  COMPS.forEach((c,i)=>{ let e='';
+    if(!c.num||!c.den) e=`Comparison #${i+1}: choose both groups`;
+    else if(c.num===c.den) e=`Comparison #${i+1}: numerator and denominator must be different groups`;
+    else if(!g.includes(c.num)||!g.includes(c.den)) e=`Comparison #${i+1}: group no longer exists in the sample table`;
+    else if(seen[c.num+'\u0000'+c.den]) e=`Comparison #${i+1} is a duplicate`;
+    seen[c.num+'\u0000'+c.den]=1;
+    if(e){ errs.push(e); const el=document.querySelector(`.comp[data-i="${i}"]`); if(el) el.classList.add('bad'); } });
+  return errs;
+}
 
 /* ---- validation & export ---- */
 const FIELD_LABEL = id => { const el=document.getElementById(id); const f=el.closest('.f'); const l=f && f.querySelector('.l'); return l ? l.textContent.trim() : id; };
@@ -325,6 +468,7 @@ function validate(){
   });
   const rows = getRows(); [...tbody.rows].forEach(r=>r.classList.remove('bad'));
   if (!rows.length) errs.push('Add at least one sample to the sample table');
+  errs.push(...compErrors());
   const seen = {};
   rows.forEach((r,i) => {
     const n = [...tbody.rows].indexOf(r.__tr)+1;
@@ -362,13 +506,18 @@ function collect(){
     ['Institution','department','Department / faculty',techn?val('faculty'):(derived('department')?val('department'):'')],
     ['Billing','billing_budget','Budget number for billing',techn?val('billing_budget'):''],
     ['Billing','reimbursement_budget','Reimbursement budget number (RTICC)',techn?val('reimbursement_budget'):''],
+    ['Billing','po_status','Purchase order status',derived('external')?({have:'PO attached',pending:'PO in process (quote approved)'}[val('po_status')]||''):''],
+    ['Billing','po_number','PO number',derived('external')&&val('po_status')==='have'?val('po_number'):''],
+    ['Billing','po_file','PO file',derived('external')&&val('po_status')==='have'&&poFile()?poName():''],
+    ['Billing','quote_number','Price quote number',derived('external')&&val('po_status')==='pending'?val('quote_number'):''],
     ['Experiment','experiment_title','Experiment title',val('experiment_title')],
     ['Experiment','purpose_hypothesis','Purpose / hypothesis',val('purpose_hypothesis')],
     ['Experiment','experiment_date','Sample collection date (earliest)',earliestDate()],
     ['Experiment','species','Species',val('species')==='Other'?val('species_other'):val('species')],
     ['Experiment','strain_or_cell_line','Cell line',val('species')==='Cell line'?val('strain_or_cell_line'):''],
     ['Experiment','sample_type','Sample type',st.join('; ')],
-    ['Experiment','comparisons','Groups / comparisons of interest',val('comparisons')],
+    ['Experiment','comparisons','Comparisons (numerator vs denominator)',COMPS.filter(c=>c.num&&c.den).map(c=>`${c.num} vs ${c.den}`).join('; ')],
+    ['Experiment','comparisons_notes','Notes on the comparisons',val('comparisons_notes')],
     ['Experiment','metabolites_of_interest','Metabolites / pathways of interest',val('metabolites_of_interest')],
     ['Sample handling','normalization_measure','Biological normalization measure',val('normalization_measure')==='Other'?val('normalization_other'):val('normalization_measure')],
     ['Sample handling','storage_temperature','Storage temperature',val('storage_temperature')],
@@ -377,14 +526,18 @@ function collect(){
     ['Sample handling','comments','Comments',val('comments')]
   ];
 }
+function poFile(){ const f=document.getElementById('po_file').files[0]; return f||null; }
+let __base='';
+function poName(){ return __base+'_PO.pdf'; }
 function safe(s){ return (s||'').normalize('NFKD').replace(/[^\w\-]+/g,'_').replace(/_+/g,'_').replace(/^_|_$/g,'').slice(0,40) || 'request'; }
-$('#export').onclick = () => {
+$('#export').onclick = async () => {
   const errs = validate(); alertBox(errs);
   if (errs.length) { const first=document.querySelector('.f.bad, tr.bad'); if (first) first.scrollIntoView({behavior:'smooth',block:'center'}); return; }
   const now = new Date(); const stamp = now.toISOString();
   const day = stamp.slice(0,10);
   const pi = val('pi_name').trim().split(/\s+/).pop();
   const id = `BCF-MET-${day.replace(/-/g,'')}-${safe(pi)}`;
+  __base = `BCF_Metabolomics_${safe(pi)}_${day}`;
   const meta = collect();
   const info = [['Field','Value'],['Request ID',id],['Submitted (UTC)',stamp],['Form version',FORM_VERSION],['Number of samples',getRows().length]];
   const sub = [['Section','Key','Field','Value'], ...meta];
@@ -395,16 +548,26 @@ $('#export').onclick = () => {
   const w3 = XLSX.utils.aoa_to_sheet(info); w3['!cols']=[{wch:20},{wch:40}];
   XLSX.utils.book_append_sheet(wb, w1, 'Submission');
   XLSX.utils.book_append_sheet(wb, w2, 'Samples');
+  const cmp = [['#','Numerator (test)','Denominator (reference)','Comparison'], ...COMPS.filter(c=>c.num&&c.den).map((c,i)=>[i+1,c.num,c.den,`${c.num} vs ${c.den}`])];
+  const w4 = XLSX.utils.aoa_to_sheet(cmp); w4['!cols']=[{wch:5},{wch:24},{wch:26},{wch:40}];
+  XLSX.utils.book_append_sheet(wb, w4, 'Comparisons');
   XLSX.utils.book_append_sheet(wb, w3, 'Info');
-  XLSX.writeFile(wb, `BCF_Metabolomics_${safe(pi)}_${day}.xlsx`);
-  $('#summary').innerHTML = `<div class="box" style="font-size:14px">File downloaded: <b>BCF_Metabolomics_${safe(pi)}_${day}.xlsx</b>. Please email it to <a href="mailto:${SUBMIT_EMAIL}?subject=${encodeURIComponent('Metabolomics sample submission '+id)}">${SUBMIT_EMAIL}</a>.</div>`;
+  const po = derived('external') && val('po_status')==='have' ? poFile() : null;
+  let fname;
+  fname = __base+'.xlsx'; XLSX.writeFile(wb, fname);
+  if (po) {
+    await new Promise(r=>setTimeout(r,600));
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([await po.arrayBuffer()],{type:'application/pdf'})); a.download = poName(); document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();}, 2000);
+  }
+  $('#summary').innerHTML = `<div class="box" style="font-size:14px">Downloaded: <b>${fname}</b>${po?` and <b>${poName()}</b>`:''}. Please email ${po?'both files':'it'} to <a href="mailto:${SUBMIT_EMAIL}?subject=${encodeURIComponent('Metabolomics sample submission '+id)}">${SUBMIT_EMAIL}</a>.${po?' If your browser asks to allow multiple downloads, click Allow.':''}</div>`;
 };
 
 /* ---- draft (per-browser convenience only) ---- */
-const DKEY='bcf-metab-draft-v2';
+const DKEY='bcf-metab-draft-v5';
 function saveDraft(){
   try {
     const d={}; document.querySelectorAll('#form [id]').forEach(el=>{ if(['INPUT','SELECT','TEXTAREA'].includes(el.tagName)&&el.type!=='file'&&el.type!=='radio'&&el.type!=='checkbox') d[el.id]=el.value; if(el.hasAttribute('data-radio')||el.hasAttribute('data-check')) d[el.id]=val(el.id); });
+    d.__comps=COMPS;
     d.__rows=[...tbody.rows].map(r=>{const o={}; r.querySelectorAll('[data-k]').forEach(i=>o[i.dataset.k]=i.value); return o;});
     localStorage.setItem(DKEY, JSON.stringify(d));
   } catch(e){}
@@ -412,13 +575,15 @@ function saveDraft(){
 function loadDraft(){
   let d=null; try { d=JSON.parse(localStorage.getItem(DKEY)||'null'); } catch(e){}
   if (d) {
-    Object.entries(d).forEach(([k,v])=>{ const el=document.getElementById(k); if(!el||k==='__rows') return;
+    Object.entries(d).forEach(([k,v])=>{ const el=document.getElementById(k); if(!el||k.startsWith('__')) return;
       if(el.hasAttribute('data-radio')) el.querySelectorAll('input').forEach(i=>i.checked=i.value===v);
       else if(el.hasAttribute('data-check')) el.querySelectorAll('input').forEach(i=>i.checked=(v||[]).includes(i.value));
       else el.value=v; });
   }
   tbody.innerHTML='';
   (d&&d.__rows&&d.__rows.length? d.__rows : Array.from({length:6},()=>({}))).forEach(r=>addRow(r));
+  COMPS = (d&&Array.isArray(d.__comps))? d.__comps : [];
+  renderComps();
 }
 $('#reset').onclick = () => { if (!confirmClear()) return; try{localStorage.removeItem(DKEY);}catch(e){} location.reload(); };
 function confirmClear(){ const b=$('#reset'); if (b.dataset.armed) return true; b.dataset.armed='1'; b.textContent='Click again to clear everything'; setTimeout(()=>{delete b.dataset.armed; b.textContent='Clear form';},4000); return false; }
