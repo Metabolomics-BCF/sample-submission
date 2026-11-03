@@ -49,6 +49,10 @@ table.samples td.del{width:32px;text-align:center}
 table.samples td.del button{border:0;background:none;color:var(--muted);cursor:pointer;font-size:16px}
 table.samples tr.bad td{background:rgba(180,35,24,.08)}
 #summary{margin-top:10px}
+.agrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px 18px;margin-top:6px}
+.agrp{border:1px solid var(--line);border-radius:8px;padding:8px 12px}
+.agt{font-weight:600;font-size:13px;color:var(--accent);margin-bottom:4px}
+.agrp .opts{flex-direction:column;gap:4px}
 .chip{display:inline-block;background:var(--accent-bg);color:var(--accent);border-radius:12px;padding:1px 10px;margin:2px 2px;font-weight:600;font-size:13px}
 .comp{border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-bottom:8px}
 .comp select{width:auto;min-width:160px}
@@ -119,6 +123,14 @@ footer{color:var(--muted);font-size:13px;text-align:center;margin-top:28px}
 <section class="card">
   <h2><span class="n">3</span>Experiment</h2>
   <div class="grid">
+    <div class="f full"><span class="l req">Requested analysis</span><span class="hint">Choose one or more. Descriptions: <a href="https://bcf.technion.ac.il/applications-metabolomics/" target="_blank" rel="noopener">BCF metabolomics applications</a></span>
+      <div id="analysis" data-req data-check class="agrid"><div class="agrp"><div class="agt">Untargeted & profiling</div><div class="opts"><label><input type="checkbox" value="Untargeted metabolomics">Untargeted metabolomics</label><label><input type="checkbox" value="Untargeted lipidomics">Untargeted lipidomics</label><label><input type="checkbox" value="Metabolomics & Lipidomics from the same samples">Metabolomics & Lipidomics from the same samples</label><label><input type="checkbox" value="Polar metabolites profiling">Polar metabolites profiling</label><label><input type="checkbox" value="Secretomics">Secretomics</label></div></div><div class="agrp"><div class="agt">Targeted assays</div><div class="opts"><label><input type="checkbox" value="Total and free fatty acids">Total and free fatty acids</label><label><input type="checkbox" value="Short-chain fatty acids">Short-chain fatty acids</label><label><input type="checkbox" value="Steroids panel">Steroids panel</label><label><input type="checkbox" value="Bile acids panel">Bile acids panel</label><label><input type="checkbox" value="Chiral analysis">Chiral analysis</label><label><input type="checkbox" value="Polyamines">Polyamines</label><label><input type="checkbox" value="Catecholamines">Catecholamines</label><label><input type="checkbox" value="Amino acids quantification">Amino acids quantification</label><label><input type="checkbox" value="Custom assay">Custom assay</label></div></div><div class="agrp"><div class="agt">Real-time metabolic analyses</div><div class="opts"><label><input type="checkbox" value="ATP production rate">ATP production rate</label><label><input type="checkbox" value="Mitochondrial toxicity">Mitochondrial toxicity</label><label><input type="checkbox" value="Mitochondrial stress test">Mitochondrial stress test</label><label><input type="checkbox" value="Glycolytic rate">Glycolytic rate</label><label><input type="checkbox" value="Mitochondrial substrate oxidation">Mitochondrial substrate oxidation</label></div></div><div class="agrp"><div class="agt">Stable isotope tracing</div><div class="opts"><label><input type="checkbox" value="Stable isotope tracing">Stable isotope tracing</label></div></div><div class="agrp"><div class="agt">Other</div><div class="opts"><label><input type="checkbox" value="Other">Other</label></div></div></div></div>
+    <div class="f full hidden" data-show="analysis~Chiral analysis"><label class="l req" for="chiral_target">Chiral analysis – which compounds / enantiomers do you want to separate?</label><input type="text" id="chiral_target" data-req placeholder="e.g. D- and L-lactate, D/L-amino acids"></div>
+    <div class="f full hidden" data-show="analysis~Custom assay"><label class="l req" for="custom_assay">Custom assay – which metabolites / what do you need?</label><input type="text" id="custom_assay" data-req></div>
+    <div class="f full hidden" data-show="analysis~Stable isotope tracing"><span class="l req">Tracer(s)</span>
+      <div class="opts" id="tracers" data-req data-check><label><input type="checkbox" value="13C6-glucose">13C6-glucose</label><label><input type="checkbox" value="1,2-13C2-glucose">1,2-13C2-glucose</label><label><input type="checkbox" value="13C3-lactate">13C3-lactate</label><label><input type="checkbox" value="13C5-glutamine">13C5-glutamine</label><label><input type="checkbox" value="13C5,15N2-glutamine">13C5,15N2-glutamine</label><label><input type="checkbox" value="13C16-palmitate">13C16-palmitate</label><label><input type="checkbox" value="Other tracer">Other tracer</label></div></div>
+    <div class="f full hidden" data-show="tracers~Other tracer"><label class="l req" for="tracer_other">Other tracer</label><input type="text" id="tracer_other" data-req></div>
+    <div class="f full hidden" data-show="analysis~Other"><label class="l req" for="analysis_other">Other analysis – please describe</label><input type="text" id="analysis_other" data-req></div>
     <div class="f full"><label class="l req" for="experiment_title">Experiment title</label><input type="text" id="experiment_title" data-req placeholder="Short name, e.g. Liver metabolism in KO mice"></div>
     <div class="f full"><label class="l req" for="purpose_hypothesis">Purpose / hypothesis</label><textarea id="purpose_hypothesis" data-req></textarea></div>
     <div class="f"><label class="l req" for="species">Species</label>
@@ -207,7 +219,7 @@ footer{color:var(--muted);font-size:13px;text-align:center;margin-top:28px}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <script>
 /* ===== Configuration (edit here) ===== */
-const FORM_VERSION = "1.7";
+const FORM_VERSION = "1.9";
 const SUBMIT_EMAIL = "metabolomics@technion.ac.il";
 const ACADEMIC = ["Technion – Israel Institute of Technology","Ariel University","Bar-Ilan University","Ben Gurion University","Haifa University","MIGAL – Galilee Research Institute","Tel-Aviv University","Tel-Hai Academic College","The Hebrew University","Volcani Center","Weizmann Institute of Science"];
 const MEDICAL = ["Bnai Zion Medical Center","Emek Medical Center","Galilee Medical Center","Hadassah Medical Center","Meir Medical Center","Rambam Health Care Campus","Sheba Medical Care Center"];
@@ -510,6 +522,8 @@ function collect(){
     ['Billing','po_number','PO number',derived('external')&&val('po_status')==='have'?val('po_number'):''],
     ['Billing','po_file','PO file',derived('external')&&val('po_status')==='have'&&poFile()?poName():''],
     ['Billing','quote_number','Price quote number',derived('external')&&val('po_status')==='pending'?val('quote_number'):''],
+    ['Requested analysis','requested_analysis','Requested analysis',val('analysis').map(a=>a==='Other'?`Other: ${val('analysis_other')}`:a==='Custom assay'?`Custom assay: ${val('custom_assay')}`:a==='Chiral analysis'?`Chiral analysis: ${val('chiral_target')}`:a).join('; ')],
+    ['Requested analysis','tracers','Stable isotope tracer(s)',val('analysis').includes('Stable isotope tracing')?val('tracers').map(t=>t==='Other tracer'?`Other: ${val('tracer_other')}`:t).join('; '):''],
     ['Experiment','experiment_title','Experiment title',val('experiment_title')],
     ['Experiment','purpose_hypothesis','Purpose / hypothesis',val('purpose_hypothesis')],
     ['Experiment','experiment_date','Sample collection date (earliest)',earliestDate()],
